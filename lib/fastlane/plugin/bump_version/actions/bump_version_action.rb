@@ -3,8 +3,8 @@ require 'credentials_manager'
 module Fastlane
   module Actions
     module SharedValues
-      LATEST_BUILD_NUMBER = :LATEST_BUILD_NUMBER
-      BUILD_NUMBER = :BUILD_NUMBER
+      BUMP_VERSION_LATEST_BUILD_NUMBER = :BUMP_VERSION_LATEST_BUILD_NUMBER
+      BUMP_VERSION_BUILD_NUMBER = :BUMP_VERSION_BUILD_NUMBER
     end
 
     class BumpVersionAction < Action
@@ -51,7 +51,7 @@ module Fastlane
           end
         end
         UI.message("Latest upload is build number: #{build_nr}")
-        Actions.lane_context[SharedValues::LATEST_BUILD_NUMBER] = build_nr
+        Actions.lane_context[SharedValues::BUMP_VERSION_LATEST_BUILD_NUMBER] = build_nr
 
         version_parts = build_nr.split(".")
         if version_parts.length <= 1
@@ -62,7 +62,7 @@ module Fastlane
           version_parts << last_part.to_s
           result_version = version_parts.join(".")
           UI.message("New build number is: #{result_version}")
-          Actions.lane_context[SharedValues::BUILD_NUMBER] = result_version
+          Actions.lane_context[SharedValues::BUMP_VERSION_BUILD_NUMBER] = result_version
 
           folder = params[:xcodeproj] ? File.join(params[:xcodeproj], '..') : '.'
 
@@ -86,14 +86,14 @@ module Fastlane
           ].join(' ')
 
           if Helper.test?
-            return Actions.lane_context[SharedValues::BUILD_NUMBER] = command
+            return Actions.lane_context[SharedValues::BUMP_VERSION_BUILD_NUMBER] = command
           else
             Actions.sh command
 
             # Store the new number in the shared hash
             build_number = `#{command_prefix} agvtool what-version`.split("\n").last.strip
 
-            return Actions.lane_context[SharedValues::BUILD_NUMBER] = build_number
+            return Actions.lane_context[SharedValues::BUMP_VERSION_BUILD_NUMBER] = build_number
           end
         end
                 
