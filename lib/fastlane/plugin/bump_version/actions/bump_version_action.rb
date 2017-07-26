@@ -41,45 +41,49 @@ module Fastlane
           end
 
           UI.message("Fetching the latest build number for version #{version_number}")
+          train = app.build_trains[version_number]
 
-          begin
-            train = app.build_trains[version_number]
-            sorted = train.builds.map(&:build_version).sort.sort do |a,b|
-              a_split = a.split(".")
-              b_split = b.split(".")
-              case
-              when a_split[0].to_i < b_split[0].to_i
-                -1
-              when a_split[0].to_i < b_split[0].to_i
-                -1
-              when a_split[0].to_i < b_split[0].to_i
-                -1
-              when a_split[0].to_i > b_split[0].to_i
-                1
-              when a_split[0].to_i > b_split[0].to_i
-                1
-              when a_split[0].to_i > b_split[0].to_i
-                1
-              when a_split[1].to_i < b_split[1].to_i
-                -1
-              when a_split[1].to_i < b_split[1].to_i
-                -1
-              when a_split[1].to_i < b_split[1].to_i
-                -1
-              when a_split[1].to_i > b_split[1].to_i
-                1
-              when a_split[1].to_i > b_split[1].to_i
-                1
-              when a_split[1].to_i > b_split[1].to_i
-                1
-              else
-                a_split[2].to_i <=> b_split[2].to_i
+          if train.nil? || train == 0
+            build_nr = params[:initial_build_number]          
+          else            
+            begin
+              sorted = train.builds.map(&:build_version).sort.sort do |a,b|
+                a_split = a.split(".")
+                b_split = b.split(".")
+                case
+                when a_split[0].to_i < b_split[0].to_i
+                  -1
+                when a_split[0].to_i < b_split[0].to_i
+                  -1
+                when a_split[0].to_i < b_split[0].to_i
+                  -1
+                when a_split[0].to_i > b_split[0].to_i
+                  1
+                when a_split[0].to_i > b_split[0].to_i
+                  1
+                when a_split[0].to_i > b_split[0].to_i
+                  1
+                when a_split[1].to_i < b_split[1].to_i
+                  -1
+                when a_split[1].to_i < b_split[1].to_i
+                  -1
+                when a_split[1].to_i < b_split[1].to_i
+                  -1
+                when a_split[1].to_i > b_split[1].to_i
+                  1
+                when a_split[1].to_i > b_split[1].to_i
+                  1
+                when a_split[1].to_i > b_split[1].to_i
+                  1
+                else
+                  a_split[2].to_i <=> b_split[2].to_i
+                end
               end
+              build_nr = sorted.last
+            rescue
+              UI.user_error!("could not find a build on iTC - and 'initial_build_number' option is not set") unless params[:initial_build_number]
+              build_nr = params[:initial_build_number]
             end
-            build_nr = sorted.last
-          rescue
-            UI.user_error!("could not find a build on iTC - and 'initial_build_number' option is not set") unless params[:initial_build_number]
-            build_nr = params[:initial_build_number]
           end
         end
         UI.message("Latest upload is build number: #{build_nr}")
